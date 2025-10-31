@@ -1,308 +1,80 @@
-// app/checkout/page.tsx
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { CheckCircle2 } from "lucide-react";
 
-interface BookingData {
-  experienceId: string;
-  experienceTitle: string;
-  experienceLocation: string;
-  date: string;
-  dateRaw: string;
-  timeSlot: string;
-  numberOfPeople: number;
-  subtotal: number;
-  taxes: number;
-  total: number;
-}
-
-export default function CheckoutPage() {
+export default function ConfirmationPage() {
+  const { id } = useParams();
   const router = useRouter();
-  const searchParams = useSearchParams();
-  
-  const [bookingData, setBookingData] = useState<BookingData | null>(null);
-  const [userName, setUserName] = useState("John Doe");
-  const [userEmail, setUserEmail] = useState("test@test.com");
-  const [userPhone, setUserPhone] = useState("");
-  const [promoCode, setPromoCode] = useState("");
-  const [discount, setDiscount] = useState(0);
-  const [agreedToTerms, setAgreedToTerms] = useState(true);
-  const [loading, setLoading] = useState(false);
+  const [booking, setBooking] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const dataParam = searchParams.get("data");
-    if (dataParam) {
-      try {
-        const parsed = JSON.parse(decodeURIComponent(dataParam));
-        setBookingData(parsed);
-      } catch (error) {
-        console.error("Error parsing booking data:", error);
-        alert("Invalid booking data");
-        router.push("/");
-      }
-    } else {
-      router.push("/");
-    }
-  }, [searchParams]);
-
-  const handlePromoApply = async () => {
-    if (!promoCode.trim()) {
-      alert("Please enter a promo code");
-      return;
-    }
-
+  const fetchBooking = async () => {
     try {
-      // Call promo code validation API
-      const response = await fetch("/api/promo/validate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          code: promoCode.toUpperCase(),
-          subtotal: bookingData?.subtotal || 0,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (data.valid && data.discount) {
-        setDiscount(data.discount);
-        alert(data.message || "Promo code applied successfully!");
+      const res = await fetch(`/api/bookings/${id}`);
+      const data = await res.json();
+      if (data.success) {
+        setBooking(data.data);
       } else {
-        alert(data.message || "Invalid promo code");
-        setDiscount(0);
+        console.error("Booking not found");
       }
-    } catch (error) {
-      console.error("Error applying promo:", error);
-      alert("Error applying promo code");
-    }
-  };
-
-  const calculateFinalTotal = () => {
-    if (!bookingData) return 0;
-    return Math.max(0, bookingData.total - discount);
-  };
-
-  const handlePayAndConfirm = async () => {
-    if (!userName.trim() || !userEmail.trim()) {
-      alert("Please fill in all required fields");
-      return;
-    }
-
-    if (!agreedToTerms) {
-      alert("Please agree to the terms and safety policy");
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      // Create booking via API
-      const response = await fetch("/api/bookings", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          experienceId: bookingData?.experienceId,
-          experienceTitle: bookingData?.experienceTitle,
-          experienceLocation: bookingData?.experienceLocation,
-          slotId: null, // Add if you have slot IDs
-          date: bookingData?.date,
-          dateRaw: bookingData?.dateRaw,
-          timeSlot: bookingData?.timeSlot,
-          userName,
-          userEmail,
-          userPhone,
-          numberOfPeople: bookingData?.numberOfPeople,
-          subtotal: bookingData?.subtotal,
-          promoCode: promoCode.toUpperCase() || undefined,
-          discount,
-          finalPrice: calculateFinalTotal(),
-        }),
-      });
-
-      const result = await response.json();
-
-      if (result.success && result.data) {
-        // Navigate to confirmation page with booking ID
-        router.push(`/confirmation/${result.data._id}`);
-      } else {
-        alert(result.message || "Booking failed. Please try again.");
-      }
-    } catch (error) {
-      console.error("Error creating booking:", error);
-      alert("Error processing booking. Please try again.");
+    } catch (err) {
+      console.error("Error fetching booking:", err);
     } finally {
       setLoading(false);
     }
   };
 
-  if (!bookingData) {
+  if (id) fetchBooking();
+}, [id]);
+
+
+  if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-yellow-400" />
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="animate-spin h-8 w-8 border-4 border-yellow-400 border-t-transparent rounded-full"></div>
+      </div>
+    );
+  }
+
+  if (!booking) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
+        <p className="text-gray-600 mb-4">Booking not found.</p>
+        <button
+          onClick={() => router.push("/")}
+          className="px-6 py-3 bg-yellow-400 text-black rounded-md hover:bg-yellow-500 transition"
+        >
+          Back to Home
+        </button>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 md:p-8">
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="bg-white shadow-sm mb-6 rounded-lg">
-          <div className="p-4 flex items-center gap-4">
-            <div className="w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center font-bold">
-              HV
-            </div>
-            <span className="font-semibold text-lg">Highway Vibes</span>
-            <div className="ml-auto">
-              <input
-                type="text"
-                placeholder="Search..."
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-yellow-400"
-              />
-            </div>
-          </div>
-        </div>
-
-        <button
-          onClick={() => router.back()}
-          className="flex items-center gap-2 text-gray-600 mb-6 hover:text-gray-900"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Checkout
-        </button>
-
-        <div className="grid md:grid-cols-3 gap-8">
-          {/* Left: Form */}
-          <div className="md:col-span-2">
-            <div className="bg-white rounded-lg shadow-lg p-6">
-              <h2 className="text-2xl font-bold mb-6">Checkout with Details</h2>
-
-              <div className="grid md:grid-cols-2 gap-4 mb-4">
-                <div>
-                  <label className="block text-sm text-gray-600 mb-2">
-                    Full name
-                  </label>
-                  <input
-                    type="text"
-                    value={userName}
-                    onChange={(e) => setUserName(e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-yellow-400"
-                    placeholder="John Doe"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm text-gray-600 mb-2">Email</label>
-                  <input
-                    type="email"
-                    value={userEmail}
-                    onChange={(e) => setUserEmail(e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-yellow-400"
-                    placeholder="test@test.com"
-                  />
-                </div>
-              </div>
-
-              <div className="mb-6">
-                <label className="block text-sm text-gray-600 mb-2">
-                  Promo code
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={promoCode}
-                    onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
-                    className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-yellow-400"
-                    placeholder="Enter promo code"
-                  />
-                  <button
-                    onClick={handlePromoApply}
-                    className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition"
-                  >
-                    Apply
-                  </button>
-                </div>
-              </div>
-
-              <label className="flex items-start gap-3 text-sm text-gray-600">
-                <input
-                  type="checkbox"
-                  checked={agreedToTerms}
-                  onChange={(e) => setAgreedToTerms(e.target.checked)}
-                  className="mt-1"
-                />
-                I agree to the terms and safety policy
-              </label>
-            </div>
-          </div>
-
-          {/* Right: Summary */}
-          <div className="md:col-span-1">
-            <div className="bg-white rounded-lg shadow-lg p-6 sticky top-8">
-              <div className="mb-4">
-                <div className="flex justify-between mb-2">
-                  <span className="text-gray-600">Experience</span>
-                  <span className="font-semibold text-right text-sm">
-                    {bookingData.experienceTitle}
-                  </span>
-                </div>
-                <div className="flex justify-between mb-2">
-                  <span className="text-gray-600">Date</span>
-                  <span className="font-semibold">{bookingData.dateRaw}</span>
-                </div>
-                <div className="flex justify-between mb-2">
-                  <span className="text-gray-600">Time</span>
-                  <span className="font-semibold">{bookingData.timeSlot}</span>
-                </div>
-                <div className="flex justify-between mb-2">
-                  <span className="text-gray-600">Qty</span>
-                  <span className="font-semibold">{bookingData.numberOfPeople}</span>
-                </div>
-              </div>
-
-              <div className="border-t pt-4 mb-4">
-                <div className="flex justify-between mb-2">
-                  <span className="text-gray-600">Subtotal</span>
-                  <span className="font-semibold">₹{bookingData.subtotal}</span>
-                </div>
-                <div className="flex justify-between mb-2">
-                  <span className="text-gray-600">Taxes</span>
-                  <span className="font-semibold">₹{bookingData.taxes}</span>
-                </div>
-                {discount > 0 && (
-                  <div className="flex justify-between mb-2 text-green-600">
-                    <span>Discount</span>
-                    <span className="font-semibold">-₹{discount}</span>
-                  </div>
-                )}
-              </div>
-
-              <div className="border-t pt-4 mb-6">
-                <div className="flex justify-between items-center">
-                  <span className="text-lg font-bold">Total</span>
-                  <span className="text-2xl font-bold">₹{calculateFinalTotal()}</span>
-                </div>
-              </div>
-
-              <button
-                onClick={handlePayAndConfirm}
-                disabled={loading}
-                className="w-full bg-yellow-400 hover:bg-yellow-500 disabled:bg-gray-300 disabled:cursor-not-allowed text-black font-semibold py-3 rounded-lg transition flex items-center justify-center gap-2"
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                    Processing...
-                  </>
-                ) : (
-                  "Pay and Confirm"
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
+    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center text-center px-4">
+      {/* Success Icon */}
+      <div className="bg-green-500 rounded-full p-4 mb-4">
+        <CheckCircle2 className="w-10 h-10 text-white" />
       </div>
+
+      {/* Text */}
+      <h1 className="text-2xl md:text-3xl font-semibold mb-2">
+        Booking Confirmed
+      </h1>
+      <p className="text-gray-600 mb-6">
+        Ref ID: <span className="font-medium">{booking.referenceId}</span>
+      </p>
+
+      {/* Button */}
+      <button
+        onClick={() => router.push("/")}
+        className="px-6 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition"
+      >
+        Back to Home
+      </button>
     </div>
   );
 }

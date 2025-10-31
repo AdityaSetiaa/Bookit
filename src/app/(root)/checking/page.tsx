@@ -1,4 +1,3 @@
-// app/checkout/page.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -20,7 +19,7 @@ interface BookingData {
 
 export default function CheckoutPage() {
   const router = useRouter();
-  
+
   const [bookingData, setBookingData] = useState<BookingData | null>(null);
   const [userName, setUserName] = useState("John Doe");
   const [userEmail, setUserEmail] = useState("test@test.com");
@@ -31,8 +30,7 @@ export default function CheckoutPage() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // Get booking data from sessionStorage
-    const storedData = sessionStorage.getItem('bookingData');
+    const storedData = sessionStorage.getItem("bookingData");
     if (storedData) {
       try {
         const parsed = JSON.parse(storedData);
@@ -50,7 +48,6 @@ export default function CheckoutPage() {
     }
 
     try {
-      // Call promo code validation API
       const response = await fetch("/api/promo/validate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -94,7 +91,6 @@ export default function CheckoutPage() {
     setLoading(true);
 
     try {
-      // Create booking via API
       const response = await fetch("/api/bookings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -102,7 +98,7 @@ export default function CheckoutPage() {
           experienceId: bookingData?.experienceId,
           experienceTitle: bookingData?.experienceTitle,
           experienceLocation: bookingData?.experienceLocation,
-          slotId: null, // Add if you have slot IDs
+          slotId: null,
           date: bookingData?.date,
           dateRaw: bookingData?.dateRaw,
           timeSlot: bookingData?.timeSlot,
@@ -111,22 +107,25 @@ export default function CheckoutPage() {
           userPhone,
           numberOfPeople: bookingData?.numberOfPeople,
           subtotal: bookingData?.subtotal,
-          promoCode: promoCode.toUpperCase() || undefined,
+          promoCode: promoCode?.toUpperCase() || undefined,
           discount,
           finalPrice: calculateFinalTotal(),
         }),
       });
 
-      const result = await response.json();
+      const result = await response.json().catch(() => null);
 
-      if (result.success && result.data) {
-        // Clear sessionStorage
-        if (typeof window !== 'undefined') {
-          sessionStorage.removeItem('bookingData');
+      if (!response.ok || !result) {
+        throw new Error(result?.message || "Failed to create booking");
+      }
+
+      const booking = result.newBooking || result.data;
+
+      if (booking && booking._id) {
+        if (typeof window !== "undefined") {
+          sessionStorage.removeItem("bookingData");
         }
-        
-        // Navigate to confirmation page with booking ID
-        router.push(`/confirmation/${result.data._id}`);
+        router.push(`/confirmation/${booking._id}`);
       } else {
         alert(result.message || "Booking failed. Please try again.");
       }
@@ -137,11 +136,15 @@ export default function CheckoutPage() {
       setLoading(false);
     }
   };
+  
 
   if (!bookingData) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-yellow-400" />
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin text-yellow-400 mx-auto mb-4" />
+          <p>Loading checkout...</p>
+        </div>
       </div>
     );
   }
@@ -149,23 +152,6 @@ export default function CheckoutPage() {
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-8">
       <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="bg-white shadow-sm mb-6 rounded-lg">
-          <div className="p-4 flex items-center gap-4">
-            <div className="w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center font-bold">
-              HV
-            </div>
-            <span className="font-semibold text-lg">Highway Vibes</span>
-            <div className="ml-auto">
-              <input
-                type="text"
-                placeholder="Search..."
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-yellow-400"
-              />
-            </div>
-          </div>
-        </div>
-
         <button
           onClick={() => router.back()}
           className="flex items-center gap-2 text-gray-600 mb-6 hover:text-gray-900"
@@ -194,7 +180,9 @@ export default function CheckoutPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm text-gray-600 mb-2">Email</label>
+                  <label className="block text-sm text-gray-600 mb-2">
+                    Email
+                  </label>
                   <input
                     type="email"
                     value={userEmail}
@@ -258,7 +246,9 @@ export default function CheckoutPage() {
                 </div>
                 <div className="flex justify-between mb-2">
                   <span className="text-gray-600">Qty</span>
-                  <span className="font-semibold">{bookingData.numberOfPeople}</span>
+                  <span className="font-semibold">
+                    {bookingData.numberOfPeople}
+                  </span>
                 </div>
               </div>
 
@@ -282,7 +272,9 @@ export default function CheckoutPage() {
               <div className="border-t pt-4 mb-6">
                 <div className="flex justify-between items-center">
                   <span className="text-lg font-bold">Total</span>
-                  <span className="text-2xl font-bold">₹{calculateFinalTotal()}</span>
+                  <span className="text-2xl font-bold">
+                    ₹{calculateFinalTotal()}
+                  </span>
                 </div>
               </div>
 

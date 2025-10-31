@@ -12,9 +12,14 @@ interface ExperienceType {
   image?: string;
 }
 
-const Display = () => {
+interface DisplayProps {
+  search: string;
+}
+
+const Display: React.FC<DisplayProps> = ({ search }) => {
   const [experiences, setExperiences] = useState<ExperienceType[]>([]);
   const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -30,21 +35,30 @@ const Display = () => {
     fetchData();
   }, []);
 
-
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-[400px]">
-        <p className="text-gray-600 text-lg animate-pulse">Loading experiences...</p>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="animate-spin h-8 w-8 border-4 border-yellow-400 border-t-transparent rounded-full"></div>
       </div>
     );
   }
 
+  const filtered = experiences.filter(
+    (exp) =>
+      exp.title.toLowerCase().includes(search.toLowerCase()) ||
+      exp.location.toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
-    <div className="flex justify-center items-center lg:px-[124px] sm:px-14 w-full h-full py-[42px]">
+    <div className="flex justify-center items-center lg:px-[124px] w-full h-full py-[42px]">
       <div className="grid lg:grid-cols-4 sm:grid-cols-2 gap-y-8 gap-x-6">
-        {experiences.map((exp) => (
-          <ExperienceCard key={exp._id} {...exp} />
-        ))}
+        {filtered.length > 0 ? (
+          filtered.map((exp) => <ExperienceCard key={exp._id} {...exp} />)
+        ) : (
+          <p className="text-gray-500 col-span-full text-center">
+            No experiences found.
+          </p>
+        )}
       </div>
     </div>
   );

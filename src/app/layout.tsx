@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Geist } from "next/font/google";
 import "./globals.css";
-import Header from "./Components.tsx/Header";
 
 
 const inter = Inter({
@@ -28,7 +27,8 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={`${inter.variable} ${geistMono.variable} antialiased`}
-      > <Header/>
+      >
+
         {children}
       </body>
     </html>

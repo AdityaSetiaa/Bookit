@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 interface ExperienceProps {
-  _id: string; // required since this identifies each experience
+  _id: string; 
   images?: string;
   location?: string;
   title?: string;

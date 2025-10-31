@@ -14,7 +14,7 @@ export async function GET(
         : (context.params as { id: string });
 
     const id = resolvedParams?.id;
-    console.log("Requested Experience ID:", id);
+    
 
     await connectDB();
     if (!id) {
@@ -57,7 +57,7 @@ export async function GET(
       },
     });
   } catch (error) {
-    console.error("❌ Error fetching experience by ID:", error);
+    console.error("Error fetching experience by ID:", error);
     return NextResponse.json(
       { success: false, error: "Failed to fetch experience" },
       { status: 500 }

@@ -68,34 +68,35 @@ export default function BookingDetailsPage() {
   };
 
   const handleConfirm = () => {
-    if (!selectedDate || !selectedTime) {
-      alert("Please select date and time");
-      return;
-    }
+  if (!selectedDate || !selectedTime) {
+    alert("Please select date and time");
+    return;
+  }
 
-    // Pass data to checkout page via URL params
-    const bookingData = {
-      experienceId: experience?._id,
-      experienceTitle: experience?.title,
-      experienceLocation: experience?.location,
-      date: `2025-10-${selectedDate}`,
-      dateRaw: selectedDate,
-      timeSlot: selectedTime,
-      numberOfPeople: quantity,
-      subtotal: calculateSubtotal(),
-      taxes: calculateTaxes(),
-      total: calculateTotal()
-    };
-
-    // Navigate to checkout with state
-    router.push('/checking');
-
+  // Store booking data in sessionStorage
+  const bookingData = {
+    experienceId: experience?._id,
+    experienceTitle: experience?.title,
+    experienceLocation: experience?.location,
+    date: `2025-10-${selectedDate}`,
+    dateRaw: selectedDate,
+    timeSlot: selectedTime,
+    numberOfPeople: quantity,
+    subtotal: calculateSubtotal(),
+    taxes: calculateTaxes(),
+    total: calculateTotal()
   };
 
-  if (loading) {
+  // Save to sessionStorage BEFORE navigating
+  sessionStorage.setItem('bookingData', JSON.stringify(bookingData));
+
+  // Navigate to checkout
+  router.push('/checking');
+};
+   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-yellow-400" />
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="animate-spin h-8 w-8 border-4 border-yellow-400 border-t-transparent rounded-full"></div>
       </div>
     );
   }

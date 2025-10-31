@@ -8,7 +8,7 @@ export async function GET(
   context: { params: { id: string } }
 ) {
   try {
-    const { id } = context.params; 
+    const { id } = await context.params; 
     console.log("📘 Fetching booking by ID:", id);
 
     await connectDB();

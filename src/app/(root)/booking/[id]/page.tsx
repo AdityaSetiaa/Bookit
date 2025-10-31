@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Calendar, Clock, ArrowLeft } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 interface TimeSlot {
   date: string[];
   time: string[];

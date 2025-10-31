@@ -1,19 +1,17 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Booking from "@/Models/Booking";
 
-export const runtime = "nodejs";
 
 export async function GET(
-  req: Request,
-  { params }: { params: { id: string } }
+  req: NextRequest,
+  context: { params: { id: string } }
 ) {
   try {
-    const { id } = params; // ✅ No await needed
-
+    const { id } = context.params; 
     console.log("📘 Fetching booking by ID:", id);
-    await connectDB();
 
+    await connectDB();
     const booking = await Booking.findById(id);
 
     if (!booking) {

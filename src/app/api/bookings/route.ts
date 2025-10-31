@@ -3,7 +3,6 @@ import connectDB from "@/lib/mongodb";
 import Booking from "@/Models/Booking";
 import PromoCode from "@/Models/PromoCode";
 
-export const runtime = "nodejs";
 
 export async function POST(req: Request) {
   try {

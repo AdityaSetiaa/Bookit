@@ -1,36 +1,80 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Getting Started
+# BookIt — Experiences & Slots
 
-First, run the development server:
+A fullstack demo app for browsing travel experiences, viewing available timeslots, and making bookings. Built with Next.js, TypeScript, TailwindCSS and MongoDB.
+
+
+## Tech stack and libraries used
+
+- Framework: Next.js 16 (App Router)
+- Language: TypeScript
+- Styling: TailwindCSS
+- Database: MongoDB with Mongoose
+- Routing & APIs: Next.js App Router (server handlers)
+- Other notable libraries: dotenv, lucide-react, mongodb, mongoose
+
+Check `package.json` for the full dependency list.
+
+## Project features
+
+- Home page: list of experiences fetched from the backend API
+- Experience details page: shows description, images, and available timeslots
+- Booking flow: choose a slot, enter user info, apply promo codes, and confirm booking
+- Promo code validation endpoint
+- Seed script to populate the database with mock experiences and timeslots
+- Mongoose models for Experience, Slot, Booking and PromoCode
+- Server-side APIs under `src/app/api/experiences` and `src/app/api/bookings`
+
+## Quick setup
+
+1. Install dependencies
+
+```bash
+npm install
+```
+
+2. Create a `.env.local` in the project root and add your MongoDB connection string:
+
+```
+MONGODB_URI=mongodb+srv://<user>:<password>@<cluster>/<dbname>?retryWrites=true&w=majority
+```
+
+3. Seed the database with mock data (optional but recommended):
+
+```bash
+npx tsx src/scripts/seed.ts
+```
+
+4. Run the development server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+5. Open http://localhost:3000
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## How to test the APIs
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- GET /api/experiences — list experiences
+- GET /api/experiences/:id — get details for one experience (includes timeslots)
+- POST /api/bookings — create a booking (expects booking payload)
+- POST /api/promo/validate — validate a promo code
 
-## Learn More
+Use curl, Postman, or the frontend UI to exercise the endpoints.
 
-To learn more about Next.js, take a look at the following resources:
+## Deployment
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Recommended hosts: Vercel (Next.js), Railway, Render. Ensure the `MONGODB_URI` environment variable is set in your host's dashboard.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Notes
 
-## Deploy on Vercel
+- The repo includes a `src/scripts/seed.ts` script that inserts mock data. Run it after you set `MONGODB_URI`.
+- If you change the models, re-run the seed script or update the DB manually.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Contributing
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+If you'd like to contribute or request changes, open an issue or submit a PR. For help customizing the README or the project, tell me what you want and I can apply edits.
+
+## License
+
+This project is provided as-is for learning and demonstration. Add a license file if you intend to publish or share the code publicly.

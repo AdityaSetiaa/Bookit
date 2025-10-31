@@ -19,7 +19,7 @@ const Header: React.FC<HeaderProps> = ({ search, setSearch }) => {
           width={90}
           height={45}
           priority
-          className="w-[80px] sm:w-[100px] h-auto"
+          className="w-20 sm:w-[100px] h-auto"
         />
 
         {/* Search Form */}

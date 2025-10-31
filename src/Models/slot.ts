@@ -1,5 +1,4 @@
-// Slot Model - Manages time slot availability for experiences
-// Includes double-booking prevention logic
+
 
 import mongoose, { Schema, Model, Document } from 'mongoose';
 
@@ -34,7 +33,7 @@ const SlotSchema = new Schema<ISlot>(
       type: String,
       required: [true, 'Time slot is required'],
       trim: true,
-      // Examples: "9:00 AM - 12:00 PM", "1:00 PM - 4:00 PM"
+      
     },
     totalSpots: {
       type: Number,
@@ -69,24 +68,21 @@ const SlotSchema = new Schema<ISlot>(
   }
 );
 
-// Compound index for efficient queries
 SlotSchema.index({ experienceId: 1, date: 1, timeSlot: 1 }, { unique: true });
 SlotSchema.index({ date: 1, status: 1 });
 
-// Pre-save middleware to calculate availableSpots and update status
+
 SlotSchema.pre('save', function (next) {
   this.availableSpots = this.totalSpots - this.bookedSpots;
   this.status = this.availableSpots > 0 ? 'available' : 'soldout';
   next();
 });
 
-// Method to book spots (with double-booking prevention)
 SlotSchema.methods.bookSlots = async function (numberOfPeople: number) {
   if (this.availableSpots < numberOfPeople) {
     throw new Error('Not enough spots available');
   }
 
-  // Atomic update to prevent race conditions
   const updated = await Slot.findOneAndUpdate(
     {
       _id: this._id,
@@ -105,7 +101,6 @@ SlotSchema.methods.bookSlots = async function (numberOfPeople: number) {
   return updated;
 };
 
-// Static method to get available slots for an experience
 SlotSchema.statics.getAvailableSlots = function (
   experienceId: string,
   startDate?: Date,

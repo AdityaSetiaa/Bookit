@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Calendar, Clock, ArrowLeft, Loader2 } from "lucide-react";
+import { Calendar, Clock, ArrowLeft } from "lucide-react";
 
 interface TimeSlot {
   date: string[];
@@ -73,7 +73,6 @@ export default function BookingDetailsPage() {
     return;
   }
 
-  // Store booking data in sessionStorage
   const bookingData = {
     experienceId: experience?._id,
     experienceTitle: experience?.title,
@@ -87,10 +86,8 @@ export default function BookingDetailsPage() {
     total: calculateTotal()
   };
 
-  // Save to sessionStorage BEFORE navigating
   sessionStorage.setItem('bookingData', JSON.stringify(bookingData));
 
-  // Navigate to checkout
   router.push('/checking');
 };
    if (loading) {

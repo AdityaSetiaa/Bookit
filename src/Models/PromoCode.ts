@@ -21,7 +21,6 @@ const PromoCodeSchema = new Schema<IPromoCode>(
   { timestamps: true }
 );
 
-// === Validation method ===
 PromoCodeSchema.methods.validatePromo = function (subtotal: number) {
   if (!this.isActive)
     return { valid: false, message: "Promo code is inactive" };

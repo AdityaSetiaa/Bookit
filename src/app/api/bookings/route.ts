@@ -69,7 +69,7 @@ export async function POST(req: Request) {
       data: booking,
     });
   } catch (err: any) {
-    console.error("❌ Booking creation failed:", err.message, err.stack);
+    console.error("Booking creation failed:", err.message, err.stack);
     return NextResponse.json(
       {
         success: false,

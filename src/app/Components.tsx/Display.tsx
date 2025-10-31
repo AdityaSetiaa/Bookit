@@ -20,14 +20,22 @@ const Display: React.FC<DisplayProps> = ({ search }) => {
   const [experiences, setExperiences] = useState<ExperienceType[]>([]);
   const [loading, setLoading] = useState(true);
 
+  
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         const res = await fetch("/api/experiences");
         const data = await res.json();
-        setExperiences(data);
+        if (data.success && Array.isArray(data.data)) {
+          setExperiences(data.data);
+        } else {
+          console.error("Invalid data format received:", data);
+          setExperiences([]);
+        }
       } catch (error) {
         console.error("Error fetching experiences:", error);
+        setExperiences([]);
       } finally {
         setLoading(false);
       }

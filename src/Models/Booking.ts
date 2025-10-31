@@ -29,13 +29,12 @@ const BookingSchema = new Schema<IBooking>(
     experienceId: { type: Schema.Types.ObjectId, ref: "Experience", required: true },
     experienceTitle: { type: String, required: true },
     experienceLocation: { type: String, required: true },
-    slotId: { type: Schema.Types.ObjectId, ref: "Slot", required: false }, // 🟢 Make this NOT required
+    slotId: { type: Schema.Types.ObjectId, ref: "Slot", required: false }, 
     date: { type: String, required: true },
     dateRaw: { type: Date, required: true },
     timeSlot: { type: String, required: true },
     userName: { type: String, required: true },
     userEmail: { type: String, required: true },
-    // ❌ removed userPhone
     numberOfPeople: { type: Number, required: true },
     subtotal: { type: Number, required: true },
     promoCode: { type: String },

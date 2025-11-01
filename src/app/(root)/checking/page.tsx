@@ -212,6 +212,7 @@ export default function CheckoutPage() {
                     Apply
                   </button>
                 </div>
+                <h1 className="font-extralight">enter promocode <span className="text-red-500 animate-pulse font-semibold">FLAT100</span> for ₹100 <span className="text-red-500 animate-pulse font-semibold">OFF</span></h1>
               </div>
 
               <label className="flex items-start gap-3 text-sm text-gray-600">
